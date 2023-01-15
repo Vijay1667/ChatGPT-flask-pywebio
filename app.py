@@ -8,7 +8,7 @@ from pywebio.session import *
 from pywebio.pin import *
 
 import pywebio
-openai.api_key = "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"
+openai.api_key = "YOUR API KEY"
 
 
 def home():
