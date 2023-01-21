@@ -14,7 +14,7 @@ from flask import Flask
 app = Flask(__name__)
 ############
 import pywebio
-openai.api_key = "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"
+openai.api_key = "OPEN-AI-API-KEY"
 mytheme=""
 
 codee=1
