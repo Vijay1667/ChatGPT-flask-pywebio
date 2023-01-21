@@ -122,7 +122,8 @@ main['index'] = home
 # pywebio.start_server(main,port=8080, debug=True)
 app.add_url_rule('/', 'webio_view', webio_view(main),
             methods=['GET', 'POST', 'OPTIONS'])  # need GET,POST and OPTIONS methods
+if __name__ == "__main__":
+  app.run( port=80)
 
-app.run(host='localhost', port=80)
 #inheroku
 # pywebio.start_server(home,port=8080,websocket_ping_interval=30)
