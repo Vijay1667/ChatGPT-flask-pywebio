@@ -7,23 +7,52 @@ from pywebio.output import *
 from pywebio.session import *
 from pywebio.pin import *
 from pywebio import config
-############
+import pywebio
+from PIL import Image
+from urllib.parse import urlparse
+openai.api_key = "YOUR_API_KEY"
+mytheme=""
+#####################################################################
 from pywebio.platform.flask import webio_view
 from flask import Flask
-
 app = Flask(__name__)
-############
-import pywebio
-openai.api_key = "OPEN-AI-API-KEY"
-mytheme=""
-
+#####################################################################
+# fine-tune id : ft-fSWTaJ1eqBit0xWeS42Qsuvm
+# file id: file-YK0IxXuH6UiaoQBvhlvSHul6  (train
+#  
 codee=1
 ALL_THEME=["sketchy","yeti","minty","default"]
+##################################
+openai.File.create(
+  file=open(r"C:\Users\vijay\Downloads\training.jsonl", "rb"),
+  purpose='fine-tune'
+)
+##################################
+
+## CMD:  openai api fine_tunes.list
+##################################
+
+#######################VALIDATION
+
+
+def checkContent(input_str):
+  response = openai.Moderation.create(
+    input=input_str,
+  )
+  check_Arr=response.results[0].categories
+  # toast(check_Arr.hate)
+  for x in check_Arr:
+    if(check_Arr[x]):
+      return "Your question doesnot follow OPENAI content policy. It contains "+x.upper()
+
+##########################
+
+@config(css_style=".btn{ background-color: white; border-color: black; color:black;font-family: Consolas,monaco,monospace;border-width: 2.2px; }")
 def home():
-  # run_js('document.getElementsByClassName("footer").innerHTML="Done by Vijay";console.log(document.body.getElementsByTagName("*"))')
-  
+#   run_js('document.getElementsByClassName("footer").innerHTML="<div>Developed by Vijay</div>";console.log(document.body.getElementsByTagName("*"))')
+#   put_markdown(pywebio.__file__)
   put_image('https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',width='50%',height='50%').style("display: block;margin-left: auto;margin-right: auto;")
-  
+  put_markdown("<h5>v2.0  BETA</h5>").style("font-size:19px !important;").style("text-align:center;background-color:gold;border-radius: 7px;")
   theme = eval_js("new URLSearchParams(window.location.search).get('app')")
   if theme not in ALL_THEME:
       theme = 'default'
@@ -34,65 +63,70 @@ def home():
   name2=ALL_THEME[1]
   name3=ALL_THEME[2]
   name4=ALL_THEME[3]
-  if info.user_agent.is_mobile:
-      put_table([[put_button("{}".format(name1),color="dark",onclick=lambda:(go_app(name=name1,new_window=False))),
-                  put_button("{}".format(name2),color="dark",onclick=lambda:(go_app(name=name2,new_window=False)))], 
-                  [put_button("{}".format(name3),color="dark",onclick=lambda:(go_app(name=name3,new_window=False))),
-                  put_button("{}".format(name4),color="dark",onclick=lambda:(go_app(name=name4,new_window=False)))]])
-      
-  else:
-      
-      put_table([[put_button("{}".format(name1),color="dark",onclick=lambda:(go_app(name=name1,new_window=False))),
-                  put_button("{}".format(name2),color="dark",onclick=lambda:(go_app(name=name2,new_window=False))),
-                  put_button("{}".format(name3),color="dark",onclick=lambda:(go_app(name=name3,new_window=False))),
-                  put_button("{}".format(name4),color="dark",onclick=lambda:(go_app(name=name4,new_window=False)))]])
   
+  put_table([[put_button("{}".format("☯"),color="dark",onclick=lambda:(go_app(name=name1,new_window=False))),
+                  put_button("{}".format("☁"),color="dark",onclick=lambda:(go_app(name=name2,new_window=False))), 
+                  put_button("{}".format("☮"),color="dark",onclick=lambda:(go_app(name=name3,new_window=False))),
+                  put_button("{}".format("☸"),color="dark",onclick=lambda:(go_app(name=name4,new_window=False)))]])
+      
   
+      
+  
+  # put_text(openai.Model.list())
   
   # mytheme=input("Select Theme:",type=TEXT,datalist=["sketchy","yeti","minty","default"])
-  put_link("Developed by Vijay",url="http://www.linkedin.com/in/vijay-reddy-160mv",new_window=True,).style("position: absolute;margin-top:75vh;padding:10px;text-align:center;")
-  put_link("Github",url="https://www.google.com/",new_window=True,).style("position: absolute;margin-top:75vh;padding:10px;text-align:center;margin-left:50vw;")
+  # .style("position: absolute;margin-top:30%;padding:10px;text-align:center;")
+  # .style("position: absolute;margin-top:30%;padding:10px;text-align:center;margin-left:50vw;")
+  put_link("Developed by Vijay",url="http://www.linkedin.com/in/vijay-reddy-160mv",new_window=True,)
+  put_link("Github",url="https://www.google.com/",new_window=True,)
   evenorodd()
   
 
  
 def evenorodd():
+  # try:d
     engines_dict={"text-davinci-003":3200, "code-davinci-002":2000,"DALL-E (preview)":100}
-    myinp=input_group("ASK GPT-3",[
-      input("", placeholder='Enter any question', required=True,help_text="For general purpose use \"text-davinci-003\" & for code purposes select \"code-davinci-002\" & for images use \"DALL-E\"",name="question"),
+    myinp=input_group(u"\U0001F4AC  ASK GPT-3",[
+    input("", placeholder='Enter any question', required=True, validate=checkContent,help_text="For general purpose use \"text-davinci-003\" & for code purposes select \"code-davinci-002\" & for images use \"DALL-E\"",name="question"),
     radio("Choose an engine",name="engine", options=["text-davinci-003", "code-davinci-002","DALL-E (preview)"],required=True)])
-    put_text(myinp["question"],).style('color: green; font-size: 20px;font-weight: 600; padding-top:20px')
-    put_button("copy",onclick=lambda:(toast("Copied"),pyperclip.copy(response.choices[0].text)),color='success',outline=True).style('float: right')
+    put_text("  👤  "+myinp["question"],).style('color: green; font-size: 20px;font-weight: 600; padding-top:20px')
+    
     if(myinp["engine"]=="DALL-E (preview)"):
-        with put_loading(shape='grow',color='success'):
-            response = openai.Image.create(
-              prompt=myinp["question"],
-              n=1,
-              size="512x512"
-            )
-            image_url = response['data'][0]['url'] 
-            put_image(response['data'][0]['url']).style("display: block;margin-left: auto;margin-right: auto; padding:20px")
+            numbb= pywebio.input.slider("select number of images",min_value=1, max_value=10, step=1,value=1,required=True)
+            with put_loading(shape='grow',color='success'):
+                response = openai.Image.create(
+                  prompt=myinp["question"]+" ,hd ,detailed",
+                  n=numbb,
+                  size="512x512"
+                )
+                for i in range(0,len(response['data'])):
+                  image_url = response['data'][i]['url']
+                  put_image(response['data'][i]['url']).style("display: block;margin-left: auto;margin-right: auto; padding:20px")
+                  # im = open(image_url,encoding='r').read()
+                  # put_file(content=int(im), label="🡇",name=myinp["question"]+str(i))
+                  
+                
     else:
+        put_button(u"\U0001F4CB",onclick=lambda:(toast("Copied"),pyperclip.copy(response.choices[0].text)),color='success',outline=True).style('float: right')
         with put_loading(shape='grow',color='success'):
             response = openai.Completion.create(
               engine=myinp["engine"],
               prompt=myinp["question"],
-              temperature=0.75,
+              temperature=0.8,
               max_tokens=engines_dict[myinp["engine"]],
-              top_p=1,
+              top_p=0.5,
               frequency_penalty=0,
               presence_penalty=0
             )   
             toast("Success")  
-        if("code" in myinp["question"].lower() or myinp["engine"]=="code-davinci-002" or "script" in myinp["question"].lower()):
+        if("```" in response.choices[0].text or  "code" in myinp["question"].lower() or myinp["engine"]=="code-davinci-002" or "script" in myinp["question"].lower()):
           global codee  
-          put_button("copy",onclick=lambda:(toast("Copied"),pyperclip.copy(response.choices[0].text)),color='success',outline=True).style('float: right')
-          if("java" in myinp["question"].lower()):
+          if("java" in response.choices[0].text or  "java" in myinp["question"].lower()):
             put_textarea('Code-Edit'+(str(codee)), code={
               'mode': "Java",
               'theme':'dracula',
             }, value=response.choices[0].text,readonly=True,rows=(int(response.usage.total_tokens)//8))
-          elif("python" in myinp["question"].lower()):
+          elif("python" in response.choices[0].text or "python" in myinp["question"].lower()):
             put_textarea('Code-Edit'+(str(codee)), code={
               'mode': "Python",
               'theme':'dracula',
@@ -107,11 +141,13 @@ def evenorodd():
           
           codee+=1
         else:
-          put_button("copy",onclick=lambda:(toast("Copied"),pyperclip.copy(response.choices[0].text)),color='success',outline=True).style('float: right')
+          # put_text(response).style('background-color: rgb(240, 240, 240);padding: 10px;border-radius: 8px;')
           put_text(response.choices[0].text).style('background-color: rgb(240, 240, 240);padding: 10px;border-radius: 8px;')
 
     put_button("Ask another Question",onclick=evenorodd).style('position: relative;bottom: 0') 
     return("This is the VJ")
+  # except:
+  #   toast("Server OVERLOAD, Please refresh the page")  
     
 def dalle2():
     put_text("Hello")
@@ -121,6 +157,8 @@ main = {
 main['index'] = home
 # pywebio.start_server(main,port=8080, debug=True)
 app.add_url_rule('/', 'webio_view', webio_view(main),methods=['GET', 'POST', 'OPTIONS'])  # need GET,POST and OPTIONS methods
+if __name__ == "__main__":
+  app.run(host="0.0.0.0",debug=False)
 
 #inheroku
 # pywebio.start_server(home,port=8080,websocket_ping_interval=30)
